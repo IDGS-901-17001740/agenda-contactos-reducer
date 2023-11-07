@@ -6,16 +6,16 @@ import { v4 as uuid } from "uuid";
 
 const FormularioAdd = ({ dispatch }) => {
   // Agregamos un useState
-  const [data, setData] = useState({
+  /* const [data, setData] = useState({
     nombre: "",
     numero: "",
     sexo: "",
     cumpleanos: "",
     imagen: "",
-  });
+  }); */
 
   //Desestruccturando el state
-  const { nombre, numero, sexo, cumpleanos, imagen } = data;
+  //const { nombre, numero, sexo, cumpleanos, imagen } = data;
 
   /* //Agregamos un método handleChange
   const handleChange = (e) => {
@@ -27,7 +27,7 @@ const FormularioAdd = ({ dispatch }) => {
     console.log(data);
   }; */
 
-  const actionAdd = {
+  /* const actionAdd = {
     type: "add",
     payload: { id: uuid(), nombre, numero, sexo, cumpleanos, imagen },
   };
@@ -36,24 +36,41 @@ const FormularioAdd = ({ dispatch }) => {
     //Invocamos al dispatch, todos los dispatch tienen referencia
     //directa con el reducer a ejecutar
     //Modificamos el state
-    setData({
-      ...data,
-      [e.target.name]: e.target.value,
-    });
+    console.log(e);
+    setData(e);
     dispatch(actionAdd);
 
     //Limpiar los campos
     setData({ nombre: "", numero: "", sexo: "", cumpleanos: "", imagen: "" });
+  }; */
+
+  const { register, handleSubmit, reset, formState: {errors} } = useForm();
+
+  const onSubmit = (data) => {
+    const actionAdd = {
+      type: "add",
+      payload: { id: uuid(), ...data },
+    };
+
+    // Invocamos al dispatch para agregar el nuevo elemento
+    dispatch(actionAdd);
+
+    // Limpiamos los campos del formulario
+    reset();
   };
 
-  const { register, handleSubmit } = useForm();
-
   return (
-    <form onSubmit={handleSubmit(handleAdd)}>
+    <form onSubmit={handleSubmit(onSubmit)}>
       <div className="container">
         <label htmlFor="" className="mx-1 d-grid gap-2">
           Nombre: {""}
-          <input type="text" className="form-control" {...register("nombre")} />
+          <input type="text" className="form-control" {...register("nombre", {
+            required: true
+          })} />
+          {errors.nombre?.type === 'required'&& 
+          <div class="alert alert-danger" role="alert">
+          El campo nombre es requerido
+        </div>}
         </label>
         <label htmlFor="" className="mx-1 d-grid gap-2">
           Sexo: {""}
@@ -64,16 +81,31 @@ const FormularioAdd = ({ dispatch }) => {
           </select>
         </label>
         <label htmlFor="" className="mx-1 d-grid gap-2">
-          Número: {""}
-          <input type="text" className="form-control" {...register("numero")} />
+          Teléfono: {""}
+          <input type="text" className="form-control" {...register("numero", {
+            required: true,
+            minLength: 10
+          })} />
+          {errors.numero?.type === 'required' && 
+          <div class="alert alert-danger" role="alert">
+          El campo teléfono es requerido
+        </div>}
+        {errors.numero?.type === 'minLength' && <div class="alert alert-danger" role="alert">
+          El teléfono debe ser de 10 digitos
+        </div>}
         </label>
         <label htmlFor="" className="mx-1 d-grid gap-2">
           Fecha de cumpleaños: {""}
           <input
             type="date"
             className="form-control"
-            {...register("cumpleanos")}
+            {...register("cumpleanos", {
+              required: true
+            })}
           />
+          {errors.cumpleanos?.type === 'required'  && <div class="alert alert-danger" role="alert">
+          Ingresa una fecha de cumpleaños valida
+        </div>}
         </label>
         <label htmlFor="" className="mx-1 d-grid gap-2">
           Imagen: {""}
